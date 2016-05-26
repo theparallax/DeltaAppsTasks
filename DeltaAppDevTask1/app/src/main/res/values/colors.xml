@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="BkgColor1">#e15258</color>
+    <color name="BkgColor2">#7d669e</color>
+    <color name="BkgColor3">#51b46d</color>
+    <color name="BkgColor4">#3079ab</color>
+    <color name="defaultColor">#ffffff</color>
+
+</resources>
