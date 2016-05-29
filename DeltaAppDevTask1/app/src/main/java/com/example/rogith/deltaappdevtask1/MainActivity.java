@@ -3,7 +3,6 @@ package com.example.rogith.deltaappdevtask1;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -16,7 +15,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class MainActivity extends AppCompatActivity{
 
     TextView counterTextView;
     RelativeLayout relativeLayout;
@@ -24,6 +23,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     int colorIndex=0;
     Context mContext;
     public static final String COUNTER="MyCounter";
+
     SharedPreferences localPreferences;
     private final List<Integer>ColorList=new ArrayList<Integer>(){
         {
@@ -46,17 +46,19 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         mContext = this;
         counterTextView =(TextView) findViewById(R.id.textView);
         relativeLayout= (RelativeLayout) findViewById(R.id.MainLayoutID) ;
-        localPreferences=getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE) ;
-        localPreferences.registerOnSharedPreferenceChangeListener(this);
-        counter = getFromFile();
-//        writeToFile(counter);
-        counterTextView.setText(String.valueOf(counter));
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("colorIndex",colorIndex);
+    }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        colorIndex = savedInstanceState.getInt("colorIndex",0);
+        relativeLayout.setBackgroundColor(ContextCompat.getColor(mContext,ColorList.get(colorIndex)));
     }
 
     @Override
@@ -91,35 +93,27 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
-
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-//        writeToFile(counter);
-        localPreferences.unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
         counter = getFromFile();
         counterTextView.setText(String.valueOf(counter));
     }
 
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        writeToFile(counter);
+    }
 
 
     public void onBtn1Click(View v){
 
         counter++;
         colorIndex = colorIndex+1>=ColorList.size()?0:colorIndex+1;
-//        counterTextView.setText(String.valueOf(counter));
+        counterTextView.setText(String.valueOf(counter));
         relativeLayout.setBackgroundColor(ContextCompat.getColor(mContext,ColorList.get(colorIndex)));
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                writeToFile(counter);
-            }
-        }).run();
     }
 
     private void writeToFile(int value){
@@ -130,13 +124,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
 
     private int getFromFile(){
+        localPreferences = getSharedPreferences(MyPREFERENCES,MODE_PRIVATE);
         if(localPreferences.contains(COUNTER))
             return localPreferences.getInt(COUNTER,0);
         else return 0;
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        counterTextView.setText(String.valueOf(sharedPreferences.getInt(key,0)));
     }
 }
